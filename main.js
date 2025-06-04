@@ -69,6 +69,11 @@ function iconIsFilled(icon) {
   // Comprueba si el icono tiene la clase 'bi-circle-fill' (activo)
   return icon.classList.contains('bi-circle-fill');
 }
+function resetModelToInitialPosition() {
+  if (w3xModel) w3xModel.position.set(0, -0.45, 0);
+}
+
+
 
 function updateIcons(activeLink) {
   document.querySelectorAll('.icon-toggle i').forEach(icon => {
@@ -123,6 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
       rotateY = false;
 
       const startCameraPos = camera.position.clone();
+      resetModelToInitialPosition();
       const startModelPos = w3xModel.position.clone();
       const startRotation = w3xModel.rotation.clone();
       const startBgColor = renderer.getClearColor(new THREE.Color());
@@ -231,7 +237,7 @@ function animateModelAndBackground() {
     rotateY = false;
     rotateX = false;
     w3xModel.rotation.set(0, 0, 0);
-    w3xModel.position.set(0, -0.2, 0);
+    resetModelToInitialPosition();
     camera.position.copy(newCameraPosition);
     camera.lookAt(0, 0, 0);
 
