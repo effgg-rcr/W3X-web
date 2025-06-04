@@ -69,11 +69,13 @@ function iconIsFilled(icon) {
   // Comprueba si el icono tiene la clase 'bi-circle-fill' (activo)
   return icon.classList.contains('bi-circle-fill');
 }
-function resetModelToInitialPosition() {
-  if (w3xModel) w3xModel.position.set(0, -0.45, 0);
+
+function resetModelPosition() {
+  if (w3xModel) {
+    w3xModel.position.set(0, -0.45, 0);
+    w3xModel.rotation.set(0, 0, 0);
+  }
 }
-
-
 
 function updateIcons(activeLink) {
   document.querySelectorAll('.icon-toggle i').forEach(icon => {
@@ -95,6 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (iconIsFilled(point2.querySelector('i'))) return;
 
       isAnimating = true;
+      resetModelPosition();  // <--- reseteo aquí
       updateIcons(point2);
 
       await animateModelAndBackground();  // <-- Espera a que termine la animación
@@ -114,7 +117,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
       isAnimating = true;
       updateIcons(point1);
-
+      
+      resetModelPosition();  // <--- reseteo aquí
       if (!w3xModel) return;
 
       const initialCameraPos = new THREE.Vector3(0, -0.1, 3);
@@ -128,7 +132,6 @@ document.addEventListener('DOMContentLoaded', () => {
       rotateY = false;
 
       const startCameraPos = camera.position.clone();
-      resetModelToInitialPosition();
       const startModelPos = w3xModel.position.clone();
       const startRotation = w3xModel.rotation.clone();
       const startBgColor = renderer.getClearColor(new THREE.Color());
@@ -170,6 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (iconIsFilled(point3.querySelector('i'))) return;
 
       isAnimating = true;
+      resetModelPosition();  // <--- reseteo aquí  
       updateIcons(point3);
 
       if (!w3xModel) return;
@@ -185,7 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Reiniciar modelo
       w3xModel.rotation.set(0, 0, 0); // <-- Reset de rotación
-      w3xModel.position.set(0, 4.8  , 0); // <-- Reset de posición si lo habías cambiado
+      w3xModel.position.set(0, 4.8, 0); // <-- Reset de posición si lo habías cambiado
 
       const startTime = performance.now();
       const startCameraPos = camera.position.clone();
@@ -237,7 +241,7 @@ function animateModelAndBackground() {
     rotateY = false;
     rotateX = false;
     w3xModel.rotation.set(0, 0, 0);
-    resetModelToInitialPosition();
+    w3xModel.position.set(0, -0.2, 0);
     camera.position.copy(newCameraPosition);
     camera.lookAt(0, 0, 0);
 
