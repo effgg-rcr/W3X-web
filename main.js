@@ -45,6 +45,25 @@ function animate() {
 }
 animate();
 
+function startLoopRotation(speed = { x: 0.01, y: 0.01, z: 0.01 }) {
+  // Activar rotación libre en los tres ejes
+  rotateX = false;
+  rotateY = false;
+
+  // Inicia una animación infinita (ajustada dentro de animate loop)
+  function rotateLoop() {
+    if (w3xModel) {
+      w3xModel.rotation.x += speed.x;
+      w3xModel.rotation.y += speed.y;
+      w3xModel.rotation.z += speed.z;
+    }
+    requestAnimationFrame(rotateLoop);
+  }
+
+  rotateLoop();
+}
+
+
 // === FUNCIONES AUXILIARES ===
 function iconIsFilled(icon) {
   // Comprueba si el icono tiene la clase 'bi-circle-fill' (activo)
@@ -136,6 +155,63 @@ document.addEventListener('DOMContentLoaded', () => {
       requestAnimationFrame(animateReset);
     });
   }
+      const point3 = document.querySelector('.point3 a');
+  if (point3) {
+    point3.addEventListener('click', (e) => {
+      e.preventDefault();
+
+      if (isAnimating) return;
+      if (iconIsFilled(point3.querySelector('i'))) return;
+
+      isAnimating = true;
+      updateIcons(point3);
+
+      if (!w3xModel) return;
+
+      // === PARÁMETROS MODIFICABLES ===
+      const targetCameraPos = new THREE.Vector3(0, 0, 9); // <-- POSICIÓN FINAL DE CÁMARA
+      const transitionDuration = 1000; // <-- DURACIÓN DE ZOOM (ms)
+      const rotationSpeed = { x: 0.01, y: 0.01, z: 0.01 }; // <-- VELOCIDAD ROTACIÓN
+      const targetBgColor = new THREE.Color('#F0E68C'); // <-- COLOR DE FONDO NUEVO
+
+      rotateX = false;
+      rotateY = false;
+
+      // Reiniciar modelo
+      w3xModel.rotation.set(0, 0, 0); // <-- Reset de rotación
+      w3xModel.position.set(0, 4.8  , 0); // <-- Reset de posición si lo habías cambiado
+
+      const startTime = performance.now();
+      const startCameraPos = camera.position.clone();
+      const startBgColor = renderer.getClearColor(new THREE.Color());
+
+      function animateZoomAndStartRotation(timestamp) {
+        const elapsed = timestamp - startTime;
+        const t = Math.min(elapsed / transitionDuration, 1);
+
+        // Interpolación cámara
+        camera.position.lerpVectors(startCameraPos, targetCameraPos, t);
+        camera.lookAt(0, 0, 0);
+
+        // Interpolación color de fondo
+        const r = startBgColor.r + (targetBgColor.r - startBgColor.r) * t;
+        const g = startBgColor.g + (targetBgColor.g - startBgColor.g) * t;
+        const b = startBgColor.b + (targetBgColor.b - startBgColor.b) * t;
+        renderer.setClearColor(new THREE.Color(r, g, b));
+
+        if (t < 1) {
+          requestAnimationFrame(animateZoomAndStartRotation);
+        } else {
+          // Inicia rotación infinita
+          startLoopRotation(rotationSpeed);
+          isAnimating = false;
+        }
+      }
+
+      requestAnimationFrame(animateZoomAndStartRotation);
+    });
+  }
+
 });
 
 // === ANIMACIÓN DE POINT2 ===
